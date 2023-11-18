@@ -1,0 +1,33 @@
+name: Deploy Server
+
+on:
+  push:
+    branches: [ deploy ]
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+
+  deploy_test:
+    name: Deploy to Test Server
+    runs-on: [self-hosted, tg-tanhongit]
+    needs: shellcheck
+    steps:
+      - name: Deploy to Remote Host
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.REMOTE_PORT }}
+          script: |
+            cd ${{ secrets.SSH_FOLDER_PATH }}
+            git reset --hard HEAD
+            git clean -fd
+            git pull origin deploy
+            composer update
