@@ -15,7 +15,7 @@ jobs:
 
   deploy_test:
     name: Deploy to Test Server
-    runs-on: [self-hosted, tg-tanhongit]
+    runs-on: [self-hosted]
     needs: shellcheck
     steps:
       - name: Deploy to Remote Host
